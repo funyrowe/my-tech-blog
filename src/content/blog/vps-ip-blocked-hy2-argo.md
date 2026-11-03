@@ -1,4 +1,4 @@
---
+---
 title: 'VPS 的 IP 被墙怎么办？能 Ping 通用 HY2，直连不通试 Argo 临时隧道'
 description: 'VPS IP 被墙后的排查思路：能 Ping 通但 TCP 被封用 Hysteria 2，Ping 也不通用 Argo 临时隧道恢复使用。'
 pubDate: 'Nov 03 2026'
@@ -23,7 +23,7 @@ pubDate: 'Nov 03 2026'
 
 ### 1. 在自己的电脑上 Ping 一下
 
-下面的 203.0.113.10 是文档示例地址，操作时换成自己的服务器 IP。
+下面的 `203.0.113.10` 是文档示例地址，操作时换成自己的服务器 IP。
 
 Windows 打开终端执行。
 
@@ -41,7 +41,7 @@ ping -c 4 203.0.113.10
 
 ### 2. 用 ITDOG 测实际使用的 TCP 端口
 
-打开在线 TCPing，输入自己的 IP:端口，例如 203.0.113.10:443。443 只是举例，要换成已经运行 TCP 服务的实际端口。勾选电信、联通、移动和海外节点后开始检测。只填 IP 时，工具默认测试 80 端口。
+打开在线 TCPing，输入自己的 `IP:端口`，例如 `203.0.113.10:443`。443 只是举例，要换成已经运行 TCP 服务的实际端口。勾选电信、联通、移动和海外节点后开始检测。只填 IP 时，工具默认测试 80 端口。
 
 结果可以这样看。
 
@@ -60,7 +60,7 @@ Windows PowerShell 执行下面的命令，替换 IP 和端口。
 Test-NetConnection -ComputerName 203.0.113.10 -Port 443
 ```
 
-查看 TcpTestSucceeded。True 表示本次 TCP 建连成功，False 表示本次建连失败，具体原因还要结合其他检测结果判断。
+查看 `TcpTestSucceeded`。`True` 表示本次 TCP 建连成功，`False` 表示本次建连失败，具体原因还要结合其他检测结果判断。
 
 macOS，以及装有常见 OpenBSD netcat 的 Linux，可以执行。
 
@@ -87,7 +87,7 @@ Hysteria 2 的常规连接基于 QUIC，使用 UDP。TCP 受到限制时，可�
 
 ### 1. 运行安装脚本
 
-先备份原有配置。下面的命令在 VPS 的 Bash 终端中用 root 运行，普通管理员账户可以先执行 sudo -i。
+先备份原有配置。下面的命令在 VPS 的 Bash 终端中用 root 运行，普通管理员账户可以先执行 `sudo -i`。
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/yys9253462-gif/hysteria2-installer/main/install.sh)
@@ -102,7 +102,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/yys9253462-gif/hysteria2-ins
 在商家安全组和系统防火墙中，核对以下项目。
 
 - HY2 实际监听的 UDP 端口。
-- 安装结果显示的 UDP 跳跃范围，当前脚本默认使用 20000–40000。
+- 安装结果显示的 UDP 跳跃范围，当前脚本默认使用 `20000–40000`。
 - 要从浏览器访问私密信息页时，对应的信息页 TCP 端口。
 
 端口以你这次安装输出为准。TCP 与 UDP 的规则要分开核对。只放行同号码的 TCP 端口，HY2 的 UDP 连接仍可能被挡住。
@@ -111,7 +111,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/yys9253462-gif/hysteria2-ins
 
 安装结束后，保存终端给出的私密信息页地址、用户名和密码。登录页面，在「节点导入」中复制 HY2 链接，或者扫描二维码。以后需要找回信息页，可以重新运行安装命令，选择菜单 3 查看地址和凭据。
 
-如果私密信息页也打不开，先通过一条仍能访问这台服务器的网络打开页面，拿到节点链接。信息页使用 TCP，和 HY2 的 UDP 连接需要分别测试。
+**如果私密信息页也打不开**，先通过一条仍能访问这台服务器的网络打开页面，拿到节点链接。信息页使用 TCP，和 HY2 的 UDP 连接需要分别测试。
 
 手头没有可用的访问路径，也可以从商家控制台读取当前配置，再手动填写客户端。
 
@@ -121,15 +121,15 @@ cat /etc/hysteria/client_meta.json
 
 | 客户端项目 | 配置中对应的字段 |
 |---|---|
-| 服务器地址 | public_ip |
-| 主监听端口 | listen_port |
-| 认证密码 | auth_password |
-| TLS 的 SNI | server_name |
+| 服务器地址 | `public_ip` |
+| 主监听端口 | `listen_port` |
+| 认证密码 | `auth_password` |
+| TLS 的 SNI | `server_name` |
 | 混淆类型 | 当前脚本默认 Salamander |
-| 混淆密码 | obfs_password |
-| 自签证书的 SHA-256 指纹 | pin_sha256 |
-| 证书校验参数 | is_insecure，自签模式需配合固定指纹设置 |
-| 跳跃端口范围 | hop_port_range |
+| 混淆密码 | `obfs_password` |
+| 自签证书的 SHA-256 指纹 | `pin_sha256` |
+| 证书校验参数 | `is_insecure`，自签模式需配合固定指纹设置 |
+| 跳跃端口范围 | `hop_port_range` |
 
 手动填写时，先用主监听端口验证连接，再按客户端支持情况添加端口跳跃。自签证书需使用支持固定证书指纹的客户端，保留与服务器一致的指纹和证书设置。配置里含连接密码，保存给自己使用即可。
 
@@ -137,7 +137,7 @@ cat /etc/hysteria/client_meta.json
 
 这一步适用于服务器仍在运行、可以向外联网，但自己这边无法正常直连的情况。
 
-服务器上的 cloudflared 主动连接 Cloudflare，客户端再通过 Cloudflare 入口访问 VPS 上的服务。临时隧道会分配一个随机的 trycloudflare.com 域名，创建时无需自有域名或 Cloudflare 账户。
+服务器上的 `cloudflared` 主动连接 Cloudflare，客户端再通过 Cloudflare 入口访问 VPS 上的服务。临时隧道会分配一个随机的 `trycloudflare.com` 域名，创建时无需自有域名或 Cloudflare 账户。
 
 ### 1. 安装甬哥的 Sing-box 脚本
 
@@ -152,7 +152,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb
 - 提示「是否开放端口，关闭防火墙」时，选择「2. 否，跳过」，自行按需处理规则。源码中的默认选项会关闭防火墙、清理部分规则，并可能停用 Apache。
 - 本文走临时隧道，证书步骤选择继续使用自签证书。当前脚本在这个分支下会关闭服务器本地 VMess 入站的 TLS。
 
-完成安装后，输入 sb 重新进入菜单。已经安装过同一脚本的机器，可以直接进入配置菜单。
+完成安装后，输入 `sb` 重新进入菜单。已经安装过同一脚本的机器，可以直接进入配置菜单。
 
 ### 2. 开启 Argo 临时隧道
 
@@ -163,7 +163,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb
 3. 选择「1. 添加或者删除 Argo 临时隧道」。
 4. 选择「1. 重置 Argo 临时隧道域名」。
 
-当前核对版本的顺序为 3 → 3 → 1 → 1。等待脚本下载所需组件、启动隧道，并输出分配到的临时域名。以后菜单有调整，按文字识别入口。
+当前核对版本的顺序为 **3 → 3 → 1 → 1**。等待脚本下载所需组件、启动隧道，并输出分配到的临时域名。以后菜单有调整，按文字识别入口。
 
 如果提示「因 vmess 开启了 tls，Argo 隧道功能不可用」，进入「变更配置」中的证书与 TLS 设置，找到 VMess，确认当前状态后切换为关闭 TLS，再回来创建隧道。这个开关会影响原有的 VMess 直连配置，使用旧节点的客户端也要同步调整。
 
@@ -171,8 +171,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb
 
 回到主菜单，选择「9. 刷新并查看节点」，再选择「1. 刷新并查看各协议分享链接、二维码、聚合节点」。
 
-找到名称类似 vmess-tls-argo临时-主机名 的节点，完整复制分享链接或扫码导入。这里使用 VMess over WebSocket，经 Cloudflare 隧道连接到 VPS。
-
+找到名称类似 `vmess-tls-argo临时-主机名` 的节点，完整复制分享链接或扫码导入。这里使用 VMess over WebSocket，经 Cloudflare 隧道连接到 VPS。
 
 导入后检查客户端配置。
 
@@ -198,4 +197,17 @@ bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/sb
 tail -n 80 /etc/s-box/argo.log
 ```
 
-当前脚本以 HTTP/2 方式连接 Cloudflare，需要服务器能向 Cloudflare 隧道端点发起 TCP 7844 出站连接。还要保留正常 DNS 解析、安装下载所需的出站访问，以及回环地址上 cloudflar
+当前脚本以 HTTP/2 方式连接 Cloudflare，需要服务器能向 Cloudflare 隧道端点发起 TCP 7844 出站连接。还要保留正常 DNS 解析、安装下载所需的出站访问，以及回环地址上 `cloudflared` 到本地 VMess 服务的连接。日志出现隧道注册成功后，再检查客户端参数和本地网络。
+
+**临时隧道重建后，域名会变化。** 重启机器后也要检查当前域名。重新执行 `sb`，通过「9 → 1」刷新节点，把最新链接导入客户端。Cloudflare 将 Quick Tunnel 定位为测试用途，且没有可用性保证，适合这里的临时恢复和验证。
+
+## 五、总结
+
+这次按两条路线处理。
+
+- **能 Ping 通、TCP 被封**，使用第一个脚本安装 HY2，放行 UDP，并通过实际握手和访问确认能用。
+- **Ping 不通、直连也失败**，在服务器仍能向外联网的前提下，用甬哥脚本开启 Argo 临时隧道，导入对应的 VMess TLS 节点。
+
+手里机器比较多，先挑一台走完检测、安装和连接测试。确认可用后，再逐台处理，记下哪台走 HY2、哪台走 Argo，以及最近一次测试结果。
+
+本文菜单与参数按 2026 年 11 月 1 日读取的项目源码核对，连接效果以自己的运营商和服务器实测为准。
